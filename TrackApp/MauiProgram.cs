@@ -25,10 +25,10 @@ public static class MauiProgram
 #endif
         builder.Services.AddSingleton<ILocationService, LocationService>();
 
-        builder.Services.AddSingleton<DemoViewModel>();
-        builder.Services.AddTransient<DemoView>(s => new DemoView
+        builder.Services.AddSingleton<MapViewModel>();
+        builder.Services.AddTransient<MapView>(s => new MapView
         {
-            BindingContext = s.GetRequiredService<DemoViewModel>()
+            BindingContext = s.GetRequiredService<MapViewModel>()
         });
 
         return builder.Build();
