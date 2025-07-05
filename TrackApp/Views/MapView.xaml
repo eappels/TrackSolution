@@ -2,7 +2,20 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:maps="http://schemas.microsoft.com/dotnet/2021/maui/maps"
-             x:Class="TrackApp.Views.MapView"
-             Title="MapView">
-    <maps:Map x:Name="MyMap" />
+             x:Class="TrackApp.Views.MapView">
+    <Grid
+        RowDefinitions="*,100">
+        <maps:Map x:Name="MyMap"
+            Grid.Row="0"
+            ZIndex="0"
+            HeightRequest="900"/>
+        <Button Text="{Binding StartStopButtonText}"
+            Command="{Binding StartStopCommand}"
+            Grid.Row="1"
+            ZIndex="1"
+            CornerRadius="50"
+            WidthRequest="100"
+            TextColor="White"
+            BackgroundColor="{Binding StartStopButtonColor}"/>
+    </Grid>
 </ContentPage>

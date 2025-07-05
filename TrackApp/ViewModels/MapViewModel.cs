@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Maui.Controls.Maps;
 using TrackApp.Messages;
@@ -20,7 +21,6 @@ public partial class MapViewModel : ObservableObject, IDisposable
         };
         this.locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
         this.locationService.OnLocationUpdate += OnLocationUpdate;
-        this.locationService.StartTracking();
     }
 
     private void OnLocationUpdate(Location location)
@@ -41,4 +41,27 @@ public partial class MapViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     private Polyline track;
+
+    [ObservableProperty]
+    private string startStopButtonText = "Start";
+
+    [ObservableProperty]
+    private Color startStopButtonColor = Colors.Green;
+
+    [RelayCommand]
+    private void StartStop()
+    {
+        if (startStopButtonText == "Start")
+        {
+            locationService.StartTracking();
+            StartStopButtonText = "Stop";
+            StartStopButtonColor = Colors.Red;
+        }
+        else
+        {
+            locationService.StopTracking();
+            StartStopButtonText = "Start";
+            StartStopButtonColor = Colors.Green;
+        }
+    }
 }

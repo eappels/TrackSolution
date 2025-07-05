@@ -47,9 +47,9 @@ public partial class MapView : ContentPage
         {
             MyMap.PropertyChanged += (s, e) =>
             {
+                isZooming = true;
                 if (e.PropertyName == "VisibleRegion")
-                {
-                    isZooming = true;
+                {                    
                     zoomLevel = MyMap.VisibleRegion.Radius.Meters;
                 }
             };
