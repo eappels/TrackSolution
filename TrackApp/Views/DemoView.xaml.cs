@@ -2,24 +2,33 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Maui.Maps;
 using System.Diagnostics;
 using TrackApp.Messages;
+using TrackApp.ViewModels;
 
 namespace TrackApp.Views
 {
-    public partial class DemoView : ContentPage
+    public partial class DemoView : ContentPage, IDisposable
     {
 
         private Location location;
+        private double zoomLevel = 250;
+        private bool isZooming = false;
+        private IDispatcherTimer timer;
 
         public DemoView()
         {
             InitializeComponent();
+
+            timer = Dispatcher.CreateTimer();
+            timer.Interval = TimeSpan.FromSeconds(3);
+            timer.Tick += (s, e) => RunInBackground();
+            timer.Start();
 
             MainThread.InvokeOnMainThreadAsync(async () =>
             {
                 location = await GetCachedLocation();
                 if (MyMap != null && location != null)
                 {
-                    MyMap.MoveToRegion(MapSpan.FromCenterAndRadius(location, Distance.FromMeters(250)));
+                    MyMap.MoveToRegion(MapSpan.FromCenterAndRadius(location, Distance.FromMeters(zoomLevel)));
                 }
             });
 
@@ -27,9 +36,26 @@ namespace TrackApp.Views
             {
                 if (MyMap != null && m.Value != null)
                 {
-                    MyMap.MoveToRegion(MapSpan.FromCenterAndRadius(new Location(m.Value.Latitude, m.Value.Longitude), Distance.FromMeters(250)));
+                    if (MyMap.MapElements.Count == 0)
+                        MyMap.MapElements.Add(((DemoViewModel)BindingContext).Track);
+                    if (!isZooming)
+                        MyMap.MoveToRegion(MapSpan.FromCenterAndRadius(new Location(m.Value.Latitude, m.Value.Longitude), Distance.FromMeters(zoomLevel)));
                 }
             });
+
+            if (MyMap != null)
+            {                
+                MyMap.PropertyChanged += (s, e) =>
+                {
+                    if (e.PropertyName == "VisibleRegion")
+                    {
+                        isZooming = true;
+                        zoomLevel = MyMap.VisibleRegion.Radius.Meters;
+                    }
+                };
+            }
+
+            Debug.WriteLine($"isZooming: {isZooming}");
         }
 
         public async Task<Location> GetCachedLocation()
@@ -47,6 +73,17 @@ namespace TrackApp.Views
             }
 
             return new Location();
+        }
+
+        private void RunInBackground()
+        {
+            isZooming = false;
+        }
+
+        public void Dispose()
+        {
+            timer.Tick -= (s, e) => RunInBackground();
+            timer.Stop();
         }
     }
 }

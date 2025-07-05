@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
-using System.Diagnostics;
+using Microsoft.Maui.Controls.Maps;
 using TrackApp.Messages;
 using TrackApp.Services.Interfaces;
 
@@ -13,6 +13,11 @@ public partial class DemoViewModel : ObservableObject, IDisposable
 
     public DemoViewModel(ILocationService locationService)
     {
+        Track = new Polyline
+        {
+            StrokeColor = Colors.Blue,
+            StrokeWidth = 5
+        };
         this.locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
         this.locationService.OnLocationUpdate += OnLocationUpdate;
         this.locationService.StartTracking();
@@ -20,7 +25,8 @@ public partial class DemoViewModel : ObservableObject, IDisposable
 
     private void OnLocationUpdate(Location location)
     {
-        Debug.WriteLine($"Location updated: {location.Latitude}, {location.Longitude}");
+        if (Track != null)        
+            Track.Geopath.Add(location);
         WeakReferenceMessenger.Default.Send(new LocationUpdatedMessage(location));
     }
 
@@ -32,4 +38,7 @@ public partial class DemoViewModel : ObservableObject, IDisposable
             locationService.StopTracking();
         }
     }
+
+    [ObservableProperty]
+    private Polyline track;
 }
