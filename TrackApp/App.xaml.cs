@@ -1,11 +1,9 @@
-﻿using TrackApp.Views;
-
-namespace TrackApp;
+﻿namespace TrackApp;
 
 public partial class App : Application
 {
 
-    public App(DemoView demoView)
+    public App()
     {
         InitializeComponent();
     }

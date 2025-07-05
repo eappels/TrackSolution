@@ -6,12 +6,12 @@ using TrackApp.Services.Interfaces;
 
 namespace TrackApp.ViewModels;
 
-public partial class DemoViewModel : ObservableObject, IDisposable
+public partial class MapViewModel : ObservableObject, IDisposable
 {
 
     private readonly ILocationService locationService;
 
-    public DemoViewModel(ILocationService locationService)
+    public MapViewModel(ILocationService locationService)
     {
         Track = new Polyline
         {
@@ -21,11 +21,11 @@ public partial class DemoViewModel : ObservableObject, IDisposable
         this.locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
         this.locationService.OnLocationUpdate += OnLocationUpdate;
         this.locationService.StartTracking();
-    }      
+    }
 
     private void OnLocationUpdate(Location location)
     {
-        if (Track != null)        
+        if (Track != null)
             Track.Geopath.Add(location);
         WeakReferenceMessenger.Default.Send(new LocationUpdatedMessage(location));
     }

@@ -6,8 +6,7 @@
     Title="TrackApp">
 
     <ShellContent
-        Title="Demo view"
-        ContentTemplate="{DataTemplate views:DemoView}"
-        Route="DemoView" />
+        ContentTemplate="{DataTemplate views:MapView}"
+        Route="MapView" />
 
 </Shell>
