@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Maui.Maps;
 using System.Diagnostics;
 using TrackApp.Messages;
+using TrackApp.ViewModels;
 
 namespace TrackApp.Views
 {
@@ -27,6 +28,8 @@ namespace TrackApp.Views
             {
                 if (MyMap != null && m.Value != null)
                 {
+                    if (MyMap.MapElements.Count == 0)
+                        MyMap.MapElements.Add(((DemoViewModel)BindingContext).Track);
                     MyMap.MoveToRegion(MapSpan.FromCenterAndRadius(new Location(m.Value.Latitude, m.Value.Longitude), Distance.FromMeters(250)));
                 }
             });
