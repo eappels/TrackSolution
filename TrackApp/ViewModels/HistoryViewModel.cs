@@ -21,16 +21,15 @@ public partial class HistoryViewModel : ObservableObject, IDisposable
         };
     }
 
-    [RelayCommand]
     public async void LoadHistoryView()
     {
-        var track = await dbService.ReadLastTrackAsync();
-        if (track == null || track.Locations == null || track.Locations.Count == 0)
+        var mytrack = await dbService.ReadLastTrackAsync();
+        if (mytrack == null || mytrack.Locations == null || mytrack.Locations.Count == 0)
         {
             Debug.WriteLine("error");
             return;
         }
-        foreach (var location in track.Locations)
+        foreach (var location in mytrack.Locations)
         {
             Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
         }

@@ -11,12 +11,6 @@ public class DBService : IDBService
 
     private SQLiteAsyncConnection database;
 
-    public DBService()
-    {
-        //if (File.Exists(Constants.DatabasePath))
-        //    File.Delete(Constants.DatabasePath);
-    }
-
     async Task Init()
     {
         if (database is not null)
@@ -30,26 +24,27 @@ public class DBService : IDBService
     public async Task<int> SaveTrackAsync(CustomTrack track)
     {
         await Init();
-        int result = await database.InsertAsync(track);
-        if (track.Locations != null && track.Locations.Count > 0)
+        var i = await database.InsertAsync(track);
+        foreach (CustomLocation location in track.Locations)
         {
-            foreach (var location in track.Locations)
-            {
-                location.CustomTrackId = track.Id;
-                await database.InsertAsync(location);
-            }
+            location.CustomTrackId = track.Id;
+            await database.InsertAsync(location);
         }
-        return result;
+        return i;
     }
 
     public async Task<CustomTrack> ReadLastTrackAsync()
     {
         await Init();
-        var tracks = await database.Table<CustomTrack>().OrderByDescending(t => t.Id).ToListAsync();
-        if (tracks.Count == 0)
-            return null;
-        Debug.WriteLine($"Last track ID: {tracks[0].Id}");
-        Debug.WriteLine($"Last track locations count: {tracks[0].Locations.Count}");
-        return tracks[0];
+        var track = await database.Table<CustomTrack>()
+            .OrderByDescending(t => t.Id)
+            .FirstOrDefaultAsync();
+        track.Locations = await database.Table<CustomLocation>()
+            .Where(l => l.CustomTrackId == track.Id)
+            .ToListAsync();
+
+        Debug.WriteLine($"Last track ID: {track.Id}");
+        Debug.WriteLine($"Last track locations count: {track.Locations.Count}");
+        return track;
     }
 }

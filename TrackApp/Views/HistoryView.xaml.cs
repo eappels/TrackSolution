@@ -1,3 +1,5 @@
+using TrackApp.ViewModels;
+
 namespace TrackApp.Views;
 
 public partial class HistoryView : ContentPage
@@ -11,11 +13,10 @@ public partial class HistoryView : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        var viewModel = BindingContext as ViewModels.HistoryViewModel;
-        viewModel.LoadHistoryView();
+        ((HistoryViewModel)BindingContext).LoadHistoryView();
         if (MyMap != null)
         {
-            MyMap.MapElements.Add(viewModel.Track);
+            MyMap.MapElements.Add(((HistoryViewModel)BindingContext).Track);
         }
     }
 }

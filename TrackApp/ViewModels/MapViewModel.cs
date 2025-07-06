@@ -71,7 +71,12 @@ public partial class MapViewModel : ObservableObject, IDisposable
                 var result = await Application.Current.MainPage.DisplayAlert("Save Track", "Do you want to save the current track?", "Yes", "No");
                 if (result == true)
                 {
-                    await dbService.SaveTrackAsync(new CustomTrack(Track.Geopath));
+                    var locations = Track.Geopath.Select(loc => new CustomLocation
+                    {
+                        Latitude = loc.Latitude,
+                        Longitude = loc.Longitude
+                    }).ToList();
+                    await dbService.SaveTrackAsync(new CustomTrack(locations));
                     result = await App.Current.Windows[0].Page.DisplayAlert("Track saved", "Do you want to display the saved track?", "Yes", "No");
                     if (result == true)
                     {
