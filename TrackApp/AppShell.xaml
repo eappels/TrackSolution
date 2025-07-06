@@ -6,7 +6,13 @@
     Title="TrackApp">
 
     <ShellContent
+        Title="Map"
         ContentTemplate="{DataTemplate views:MapView}"
         Route="MapView" />
+
+    <ShellContent
+        Title="History"
+        ContentTemplate="{DataTemplate views:HistoryView}"
+        Route="HistoryView" />
 
 </Shell>

@@ -23,6 +23,7 @@ public static class MauiProgram
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
+        builder.Services.AddSingleton<IDBService, DBService>();
         builder.Services.AddSingleton<ILocationService, LocationService>();
 
         builder.Services.AddSingleton<MapViewModel>();
@@ -30,6 +31,8 @@ public static class MauiProgram
         {
             BindingContext = s.GetRequiredService<MapViewModel>()
         });
+
+        builder.Services.AddTransient<HistoryView>();
 
         return builder.Build();
     }

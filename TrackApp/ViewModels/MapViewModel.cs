@@ -2,7 +2,9 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Maui.Controls.Maps;
+using System.Diagnostics;
 using TrackApp.Messages;
+using TrackApp.Models;
 using TrackApp.Services.Interfaces;
 
 namespace TrackApp.ViewModels;
@@ -10,9 +12,10 @@ namespace TrackApp.ViewModels;
 public partial class MapViewModel : ObservableObject, IDisposable
 {
 
+    private readonly IDBService dbService;
     private readonly ILocationService locationService;
 
-    public MapViewModel(ILocationService locationService)
+    public MapViewModel(ILocationService locationService, IDBService dbService)
     {
         Track = new Polyline
         {
@@ -21,6 +24,18 @@ public partial class MapViewModel : ObservableObject, IDisposable
         };
         this.locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
         this.locationService.OnLocationUpdate += OnLocationUpdate;
+        this.dbService = dbService;
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            var track = this.dbService.ReadLastTrackAsync();
+            WeakReferenceMessenger.Default.Register<LocationUpdatedMessage>(this, (r, m) =>
+            {
+                if (track != null)
+                {
+                    Track.Geopath.Add(m.Value);
+                }
+            });
+        });
     }
 
     private void OnLocationUpdate(Location location)
@@ -49,7 +64,7 @@ public partial class MapViewModel : ObservableObject, IDisposable
     private Color startStopButtonColor = Colors.Green;
 
     [RelayCommand]
-    private void StartStop()
+    private async void StartStop()
     {
         if (startStopButtonText == "Start")
         {
@@ -62,6 +77,26 @@ public partial class MapViewModel : ObservableObject, IDisposable
             locationService.StopTracking();
             StartStopButtonText = "Start";
             StartStopButtonColor = Colors.Green;
+            if (Track.Geopath.Count > 0)
+            {
+                var result = await Application.Current.MainPage.DisplayAlert("Save Track", "Do you want to save the current track?", "Yes", "No");
+                if (result == true)
+                {
+                    var track = new CustomTrack(Track.Geopath);
+                    var tmp = await dbService.SaveTrackAsync(track);
+                    Debug.WriteLine($"Track saved with ID: {tmp}");
+                    result = await App.Current.Windows[0].Page.DisplayAlert("Track saved", "Do you want to display the saved track?", "Yes", "No");
+                    if (result == true)
+                    {
+                        await Shell.Current.GoToAsync($"///HistoryView", new Dictionary<string, object>
+                        {
+                            { "Track", Track }
+                        });
+                    }
+                }
+                Track.Geopath.Clear();
+                StartStopButtonColor = Colors.Green;
+            }
         }
     }
 }
