@@ -25,17 +25,6 @@ public partial class MapViewModel : ObservableObject, IDisposable
         this.locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
         this.locationService.OnLocationUpdate += OnLocationUpdate;
         this.dbService = dbService;
-        MainThread.BeginInvokeOnMainThread(async () =>
-        {
-            var track = this.dbService.ReadLastTrackAsync();
-            WeakReferenceMessenger.Default.Register<LocationUpdatedMessage>(this, (r, m) =>
-            {
-                if (track != null)
-                {
-                    Track.Geopath.Add(m.Value);
-                }
-            });
-        });
     }
 
     private void OnLocationUpdate(Location location)
@@ -82,16 +71,11 @@ public partial class MapViewModel : ObservableObject, IDisposable
                 var result = await Application.Current.MainPage.DisplayAlert("Save Track", "Do you want to save the current track?", "Yes", "No");
                 if (result == true)
                 {
-                    var track = new CustomTrack(Track.Geopath);
-                    var tmp = await dbService.SaveTrackAsync(track);
-                    Debug.WriteLine($"Track saved with ID: {tmp}");
+                    await dbService.SaveTrackAsync(new CustomTrack(Track.Geopath));
                     result = await App.Current.Windows[0].Page.DisplayAlert("Track saved", "Do you want to display the saved track?", "Yes", "No");
                     if (result == true)
                     {
-                        await Shell.Current.GoToAsync($"///HistoryView", new Dictionary<string, object>
-                        {
-                            { "Track", Track }
-                        });
+                        await Shell.Current.GoToAsync($"///HistoryView", true);
                     }
                 }
                 Track.Geopath.Clear();

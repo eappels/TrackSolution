@@ -32,7 +32,11 @@ public static class MauiProgram
             BindingContext = s.GetRequiredService<MapViewModel>()
         });
 
-        builder.Services.AddTransient<HistoryView>();
+        builder.Services.AddSingleton<HistoryViewModel>();
+        builder.Services.AddTransient<HistoryView>(s => new HistoryView
+        {
+            BindingContext = s.GetRequiredService<HistoryViewModel>()
+        });
 
         return builder.Build();
     }

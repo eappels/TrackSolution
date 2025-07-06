@@ -13,8 +13,8 @@ public class DBService : IDBService
 
     public DBService()
     {
-        if (File.Exists(Constants.DatabasePath))
-            File.Delete(Constants.DatabasePath);
+        //if (File.Exists(Constants.DatabasePath))
+        //    File.Delete(Constants.DatabasePath);
     }
 
     async Task Init()
@@ -31,7 +31,7 @@ public class DBService : IDBService
     {
         await Init();
         int result = await database.InsertAsync(track);
-        if (track.Id > 0 && track.Locations != null)
+        if (track.Locations != null && track.Locations.Count > 0)
         {
             foreach (var location in track.Locations)
             {
@@ -45,10 +45,11 @@ public class DBService : IDBService
     public async Task<CustomTrack> ReadLastTrackAsync()
     {
         await Init();
-        // return the last track
         var tracks = await database.Table<CustomTrack>().OrderByDescending(t => t.Id).ToListAsync();
         if (tracks.Count == 0)
             return null;
+        Debug.WriteLine($"Last track ID: {tracks[0].Id}");
+        Debug.WriteLine($"Last track locations count: {tracks[0].Locations.Count}");
         return tracks[0];
     }
 }
