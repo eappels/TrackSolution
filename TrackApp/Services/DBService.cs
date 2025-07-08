@@ -42,32 +42,12 @@ public class DBService : IDBService
         track.Locations = await database.Table<CustomLocation>()
             .Where(l => l.CustomTrackId == track.Id)
             .ToListAsync();
-
-        Debug.WriteLine($"Last track ID: {track.Id}");
-        Debug.WriteLine($"Last track locations count: {track.Locations.Count}");
         return track;
     }
 
     public async Task<List<CustomTrack>> GetAllTracksAsync()
     {
         await Init();
-        var tracks = new List<CustomTrack>();
-        try
-        {
-            tracks = await database.Table<CustomTrack>().ToListAsync();
-            Debug.WriteLine($"Tracks count: {tracks.Count}");
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error retrieving tracks: {ex.Message}");
-            throw;
-        }        
-        if (tracks == null || tracks.Count == 0)
-        {
-            Debug.WriteLine("No tracks found in the database.");
-            return new List<CustomTrack>();
-        }
-        Debug.WriteLine($"Total tracks found: {tracks.Count}");
-        return tracks;
+        return await database.Table<CustomTrack>().ToListAsync();
     }
 }

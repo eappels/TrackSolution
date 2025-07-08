@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Diagnostics;
+using Microsoft.Maui.Controls.Maps;
 using TrackApp.Services.Interfaces;
 
 namespace TrackApp.ViewModels;
@@ -13,21 +13,24 @@ public partial class DevViewModel : ObservableObject
     public DevViewModel(IDBService dbService)
     {
         this.dbService = dbService ?? throw new ArgumentNullException(nameof(dbService));
+        Track = new Polyline
+        {
+            StrokeColor = Colors.Blue,
+            StrokeWidth = 5
+        };
     }
 
     [RelayCommand]
-    private void Dev()
+    private async Task Dev()
     {
-        var tracks = dbService.GetAllTracksAsync();
-        if (tracks.Result.Count > 0)
+        var lastTrack = await dbService.ReadLastTrackAsync();
+        Track.Geopath.Clear();
+        foreach (var location in lastTrack.Locations)
         {
-            var lastTrack = tracks.Result[^1];
-            Debug.WriteLine($"Last track ID: {lastTrack.Id}");
-            Debug.WriteLine($"Last track locations count: {lastTrack.Locations.Count}");
-        }
-        else
-        {
-            Debug.WriteLine("No tracks found in the database.");
+            Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
         }
     }
+
+    [ObservableProperty]
+    private Polyline track;
 }
