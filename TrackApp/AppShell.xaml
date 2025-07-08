@@ -11,8 +11,8 @@
         Route="MapView" />
 
     <ShellContent
-        Title="History"
-        ContentTemplate="{DataTemplate views:HistoryView}"
-        Route="HistoryView" />
+        Title="Dev"
+        ContentTemplate="{DataTemplate views:DevView}"
+        Route="DevView" />
 
 </Shell>

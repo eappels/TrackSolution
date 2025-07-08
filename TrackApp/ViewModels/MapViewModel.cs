@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Maui.Controls.Maps;
-using System.Diagnostics;
 using TrackApp.Messages;
 using TrackApp.Models;
 using TrackApp.Services.Interfaces;
@@ -77,11 +76,11 @@ public partial class MapViewModel : ObservableObject, IDisposable
                         Longitude = loc.Longitude
                     }).ToList();
                     await dbService.SaveTrackAsync(new CustomTrack(locations));
-                    result = await App.Current.Windows[0].Page.DisplayAlert("Track saved", "Do you want to display the saved track?", "Yes", "No");
-                    if (result == true)
-                    {
-                        await Shell.Current.GoToAsync($"///HistoryView", true);
-                    }
+                    //result = await App.Current.Windows[0].Page.DisplayAlert("Track saved", "Do you want to display the saved track?", "Yes", "No");
+                    //if (result == true)
+                    //{
+                    //    await Shell.Current.GoToAsync($"///HistoryView", true);
+                    //}
                 }
                 Track.Geopath.Clear();
                 StartStopButtonColor = Colors.Green;
