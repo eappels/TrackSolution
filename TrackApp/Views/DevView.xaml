@@ -5,15 +5,20 @@
              x:Class="TrackApp.Views.DevView"
              Title="DevView">
     <Grid
-        RowDefinitions="*,100">
+        RowDefinitions="*,150">
         <maps:Map x:Name="MyMap"
             Grid.Row="0"
-            ZIndex="0"
-            HeightRequest="900"/>
-        <Button Text="DevCommand"
-            Command="{Binding DevCommand}"
+            Grid.RowSpan="1"/>
+        <ListView ItemsSource="{Binding Tracks}"
             Grid.Row="1"
-            ZIndex="1"
-            WidthRequest="150"/>
+            Grid.RowSpan="1"
+            SelectionMode="Single"
+            SelectedItem="{Binding SelectedTrack}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextCell Text="{Binding Id}"/>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </Grid>
 </ContentPage>

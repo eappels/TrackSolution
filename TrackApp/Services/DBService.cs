@@ -50,4 +50,20 @@ public class DBService : IDBService
         await Init();
         return await database.Table<CustomTrack>().ToListAsync();
     }
+
+    public async Task<CustomTrack> GetTrackbyIdAsync(int id)
+    {
+        await Init();
+        return await database.Table<CustomTrack>()
+            .Where(t => t.Id == id)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<List<CustomLocation>> GetLocationsByTrackIdAsync(int trackId)
+    {
+        await Init();
+        return await database.Table<CustomLocation>()
+            .Where(l => l.CustomTrackId == trackId)
+            .ToListAsync();
+    }
 }
