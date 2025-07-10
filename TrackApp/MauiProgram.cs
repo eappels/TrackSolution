@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using TrackApp.Services;
 using TrackApp.Services.Interfaces;
 using TrackApp.ViewModels;
@@ -26,17 +27,17 @@ public static class MauiProgram
         builder.Services.AddSingleton<IDBService, DBService>();
         builder.Services.AddSingleton<ILocationService, LocationService>();
 
-        builder.Services.AddSingleton<MapViewModel>();
-        builder.Services.AddTransient<MapView>(s => new MapView
-        {
-            BindingContext = s.GetRequiredService<MapViewModel>()
-        });
+        //builder.Services.AddSingleton<MapViewModel>();
+        //builder.Services.AddTransient<MapView>(s => new MapView
+        //{
+        //    BindingContext = s.GetRequiredService<MapViewModel>()
+        //});
 
-        builder.Services.AddSingleton<DevViewModel>();
-        builder.Services.AddTransient<DevView>(s => new DevView
-        {
-            BindingContext = s.GetRequiredService<DevViewModel>()
-        });
+        //builder.Services.AddSingleton<HistoryViewModel>();
+        //builder.Services.AddTransient<HistoryView>(s => new HistoryView
+        //{
+        //    BindingContext = s.GetRequiredService<HistoryViewModel>()
+        //});
 
         return builder.Build();
     }

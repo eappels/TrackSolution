@@ -14,17 +14,29 @@ public partial class MapViewModel : ObservableObject, IDisposable
     private readonly IDBService dbService;
     private readonly ILocationService locationService;
 
-    public MapViewModel(ILocationService locationService, IDBService dbService)
+    public MapViewModel()
     {
         Track = new Polyline
         {
             StrokeColor = Colors.Blue,
             StrokeWidth = 5
         };
-        this.locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
+        this.locationService = new Services.LocationService();
         this.locationService.OnLocationUpdate += OnLocationUpdate;
-        this.dbService = dbService;
+        this.dbService = new Services.DBService();
     }
+
+    //public MapViewModel(ILocationService locationService, IDBService dbService)
+    //{
+    //    Track = new Polyline
+    //    {
+    //        StrokeColor = Colors.Blue,
+    //        StrokeWidth = 5
+    //    };
+    //    this.locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
+    //    this.locationService.OnLocationUpdate += OnLocationUpdate;
+    //    this.dbService = dbService;
+    //}
 
     private void OnLocationUpdate(Location location)
     {
@@ -76,11 +88,11 @@ public partial class MapViewModel : ObservableObject, IDisposable
                         Longitude = loc.Longitude
                     }).ToList();
                     await dbService.SaveTrackAsync(new CustomTrack(locations));
-                    //result = await App.Current.Windows[0].Page.DisplayAlert("Track saved", "Do you want to display the saved track?", "Yes", "No");
-                    //if (result == true)
-                    //{
-                    //    await Shell.Current.GoToAsync($"///HistoryView", true);
-                    //}
+                    result = await App.Current.Windows[0].Page.DisplayAlert("Track saved", "Do you want to display the saved track?", "Yes", "No");
+                    if (result == true)
+                    {
+                        await Shell.Current.GoToAsync($"///HistoryView", true);
+                    }
                 }
                 Track.Geopath.Clear();
                 StartStopButtonColor = Colors.Green;

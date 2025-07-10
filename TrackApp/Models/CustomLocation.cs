@@ -20,4 +20,9 @@ public class CustomLocation
         Longitude = longitude;
         CustomTrackId = customTrackId;
     }
+
+    public override string ToString()
+    {
+        return $"Latitude: {Latitude} Longitude: {Longitude} CustomTrackId: {CustomTrackId}";
+    }
 }
