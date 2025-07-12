@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Maui.Maps;
 using System.Diagnostics;
+using TrackApp.Helpers;
 using TrackApp.Messages;
 using TrackApp.ViewModels;
 
@@ -9,6 +10,7 @@ namespace TrackApp.Views;
 public partial class MapView : ContentPage
 {
 
+    private MapViewModel viewModel;
     private Location location;
     private double zoomLevel = 250;
     private bool isZooming = false;
@@ -17,6 +19,8 @@ public partial class MapView : ContentPage
     public MapView()
 	{
 		InitializeComponent();
+
+        BindingContext = viewModel = ServiceHelper.GetService<MapViewModel>();
 
         timer = Dispatcher.CreateTimer();
         timer.Interval = TimeSpan.FromSeconds(3);
@@ -37,7 +41,7 @@ public partial class MapView : ContentPage
             if (MyMap != null && m.Value != null)
             {
                 if (MyMap.MapElements.Count == 0)
-                    MyMap.MapElements.Add(((MapViewModel)BindingContext).Track);
+                    MyMap.MapElements.Add(viewModel.Track);
                 if (!isZooming)
                     MyMap.MoveToRegion(MapSpan.FromCenterAndRadius(new Location(m.Value.Latitude, m.Value.Longitude), Distance.FromMeters(zoomLevel)));
             }
@@ -47,9 +51,9 @@ public partial class MapView : ContentPage
         {
             MyMap.PropertyChanged += (s, e) =>
             {
+                isZooming = true;
                 if (e.PropertyName == "VisibleRegion")
-                {
-                    isZooming = true;
+                {                    
                     zoomLevel = MyMap.VisibleRegion.Radius.Meters;
                 }
             };
