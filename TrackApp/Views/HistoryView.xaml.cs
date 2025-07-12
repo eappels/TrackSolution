@@ -21,7 +21,7 @@ public partial class HistoryView : ContentPage
 
         WeakReferenceMessenger.Default.Register<HistoryTrackSelectedChangedMessage>(this, (r, m) =>
 		{
-			if (MyMap != null && m.Value?.Locations?.Count > 0)
+            if (MyMap != null && m.Value?.Locations?.Count > 0)
 			{
 				var locations = m.Value.Locations;
 				double minLat = locations.Min(l => l.Latitude);

@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Maui.Controls.Maps;
+using System.Diagnostics;
 using TrackApp.Messages;
 using TrackApp.Models;
 using TrackApp.Services.Interfaces;
@@ -24,6 +25,21 @@ public partial class MapViewModel : ObservableObject, IDisposable
         this.locationService = locationService;
         this.locationService.OnLocationUpdate += OnLocationUpdate;
         this.dbService = dbService ?? throw new ArgumentNullException(nameof(dbService));
+
+
+        Task.Run(async () =>
+        {
+            var tracksInDB = await dbService.GetAllTracksAsync();
+            foreach (CustomTrack track in tracksInDB)
+            {
+                Debug.WriteLine($"Track ID: {track.Id}");
+                var cLocations = await dbService.GetLocationsByTrackIdAsync(track.Id);
+                foreach (CustomLocation cLocation in cLocations)
+                {
+                    Debug.WriteLine($"Location: {cLocation.Latitude}, {cLocation.Longitude}");
+                }
+            }
+        });
     }
 
     private void OnLocationUpdate(Location location)

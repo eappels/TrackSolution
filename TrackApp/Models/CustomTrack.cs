@@ -9,14 +9,14 @@ public class CustomTrack
     public int Id { get; set; }
 
     [Ignore]
-    public List<CustomLocation> Locations { get; set; } = new();
+    public List<CustomLocation> Locations { get; set; }
 
     public CustomTrack()
     {
     }
 
-    public CustomTrack(List<CustomLocation> locations)
+    public CustomTrack(List<CustomLocation> Locations)
     {
-        Locations = locations;
+        this.Locations = Locations ?? new List<CustomLocation>();
     }
 }
