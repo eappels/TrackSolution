@@ -16,11 +16,6 @@ public partial class HistoryViewModel : ObservableObject
     public HistoryViewModel()
     {
         this.dbService = new Services.DBService();
-        Track = new Polyline
-        {
-            StrokeColor = Colors.Blue,
-            StrokeWidth = 5
-        };
 
         MainThread.BeginInvokeOnMainThread(async () =>
         {
@@ -31,25 +26,6 @@ public partial class HistoryViewModel : ObservableObject
             }
         });
     }
-
-    //public HistoryViewModel(IDBService dbService)
-    //{
-    //    this.dbService = dbService ?? throw new ArgumentNullException(nameof(dbService));
-    //    Track = new Polyline
-    //    {
-    //        StrokeColor = Colors.Blue,
-    //        StrokeWidth = 5
-    //    };
-
-    //    MainThread.BeginInvokeOnMainThread(async () =>
-    //    {
-    //        Tracks = await dbService.GetAllTracksAsync();
-    //        foreach (var item in track)
-    //        {
-    //            Debug.WriteLine(item.ToString());
-    //        }
-    //    });
-    //}
 
     async partial void OnSelectedTrackChanged(CustomTrack value)
     {
@@ -76,7 +52,11 @@ public partial class HistoryViewModel : ObservableObject
 
 
     [ObservableProperty]
-    private Polyline track;
+    private Polyline track = new Polyline
+    {
+        StrokeColor = Colors.Blue,
+        StrokeWidth = 5
+    };
 
     [ObservableProperty]
     private CustomTrack selectedTrack;

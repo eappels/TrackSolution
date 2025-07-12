@@ -9,4 +9,5 @@ public interface IDBService
     Task<CustomTrack> GetTrackbyIdAsync(int id);
     Task<List<CustomTrack>> GetAllTracksAsync();
     Task<List<CustomLocation>> GetLocationsByTrackIdAsync(int trackId);
+    Task ClearDatabase();
 }

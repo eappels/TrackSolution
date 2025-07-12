@@ -15,4 +15,9 @@
         ContentTemplate="{DataTemplate views:HistoryView}"
         Route="HistoryView" />
 
+    <ShellContent
+        Title="Settings"
+        ContentTemplate="{DataTemplate views:SettingsView}"
+        Route="SettingsView" />
+
 </Shell>

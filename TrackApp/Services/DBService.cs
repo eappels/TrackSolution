@@ -66,4 +66,13 @@ public class DBService : IDBService
             .Where(l => l.CustomTrackId == trackId)
             .ToListAsync();
     }
+
+    public async Task ClearDatabase()
+    {
+        await Init();
+        await database.DropTableAsync<CustomTrack>();
+        await database.DropTableAsync<CustomLocation>();
+        await database.CreateTableAsync<CustomTrack>();
+        await database.CreateTableAsync<CustomLocation>();
+    }
 }

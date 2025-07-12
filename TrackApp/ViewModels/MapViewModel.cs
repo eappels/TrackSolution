@@ -14,29 +14,17 @@ public partial class MapViewModel : ObservableObject, IDisposable
     private readonly IDBService dbService;
     private readonly ILocationService locationService;
 
-    public MapViewModel()
+    public MapViewModel(ILocationService locationService, IDBService dbService)
     {
         Track = new Polyline
         {
             StrokeColor = Colors.Blue,
             StrokeWidth = 5
         };
-        this.locationService = new Services.LocationService();
+        this.locationService = locationService;
         this.locationService.OnLocationUpdate += OnLocationUpdate;
-        this.dbService = new Services.DBService();
+        this.dbService = dbService ?? throw new ArgumentNullException(nameof(dbService));
     }
-
-    //public MapViewModel(ILocationService locationService, IDBService dbService)
-    //{
-    //    Track = new Polyline
-    //    {
-    //        StrokeColor = Colors.Blue,
-    //        StrokeWidth = 5
-    //    };
-    //    this.locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
-    //    this.locationService.OnLocationUpdate += OnLocationUpdate;
-    //    this.dbService = dbService;
-    //}
 
     private void OnLocationUpdate(Location location)
     {
@@ -55,13 +43,13 @@ public partial class MapViewModel : ObservableObject, IDisposable
     }
 
     [ObservableProperty]
-    private Polyline track;
+    public Polyline track;
 
     [ObservableProperty]
-    private string startStopButtonText = "Start";
+    public string startStopButtonText = "Start";
 
     [ObservableProperty]
-    private Color startStopButtonColor = Colors.Green;
+    public Color startStopButtonColor = Colors.Green;
 
     [RelayCommand]
     private async void StartStop()
