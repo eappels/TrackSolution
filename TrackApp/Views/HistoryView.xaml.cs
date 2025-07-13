@@ -15,8 +15,7 @@ public partial class HistoryView : ContentPage
 	{
 		InitializeComponent();
 
-        BindingContext = viewModel = ServiceHelper.GetService<HistoryViewModel>();
-
+        BindingContext = viewModel = ServiceHelper.GetService<HistoryViewModel>();		
         MyMap.MapElements.Add(viewModel.Track);
 
         WeakReferenceMessenger.Default.Register<HistoryTrackSelectedChangedMessage>(this, (r, m) =>
@@ -45,5 +44,11 @@ public partial class HistoryView : ContentPage
 				MyMap.MoveToRegion(bounds);
 			}
 		});        
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+		((HistoryViewModel)BindingContext).LoadDataFromDatabase();
     }
 }

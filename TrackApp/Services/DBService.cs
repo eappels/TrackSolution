@@ -45,7 +45,7 @@ public class DBService : IDBService
         return track;
     }
 
-    public async Task<List<CustomTrack>> GetAllTracksAsync()
+    public async Task<IList<CustomTrack>> GetAllTracksAsync()
     {
         await Init();
         return await database.Table<CustomTrack>().ToListAsync();
@@ -59,12 +59,25 @@ public class DBService : IDBService
             .FirstOrDefaultAsync();
     }
 
-    public async Task<List<CustomLocation>> GetLocationsByTrackIdAsync(int trackId)
+    public async Task<IList<CustomLocation>> GetLocationsByTrackIdAsync(int trackId)
     {
         await Init();
         return await database.Table<CustomLocation>()
             .Where(l => l.CustomTrackId == trackId)
             .ToListAsync();
+    }
+
+    public async Task<int> DeleteTrackAsync(CustomTrack track)
+    {
+        await Init();
+        var locations = await database.Table<CustomLocation>()
+            .Where(l => l.CustomTrackId == track.Id)
+            .ToListAsync();
+        foreach (var location in locations)
+        {
+            await database.DeleteAsync(location);
+        }
+        return await database.DeleteAsync(track);
     }
 
     public async Task ClearDatabase()

@@ -9,7 +9,7 @@ public class CustomTrack
     public int Id { get; set; }
 
     [Ignore]
-    public List<CustomLocation> Locations { get; set; }
+    public IList<CustomLocation> Locations { get; set; }
 
     public CustomTrack()
     {

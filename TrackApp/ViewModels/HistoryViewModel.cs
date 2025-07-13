@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Maui.Controls.Maps;
 using TrackApp.Messages;
@@ -15,24 +16,48 @@ public partial class HistoryViewModel : ObservableObject
     public HistoryViewModel()
     {
         this.dbService = new Services.DBService();
-        Task.Run(async () =>
-        {
-            Tracks = await dbService.GetAllTracksAsync();
-        });
+    }
+
+    public async Task LoadDataFromDatabase()
+    {
+        Track.Geopath.Clear();
+        Tracks = await dbService.GetAllTracksAsync();
     }
 
     async partial void OnSelectedTrackChanged(CustomTrack value)
-    {
-        Track.Geopath.Clear();
+    {        
+        if (value is null)
+            return;
+
+        if (Track.Geopath.Count > 0)
+            Track.Geopath.Clear();
 
         value.Locations = await dbService.GetLocationsByTrackIdAsync(value.Id);
         foreach (var location in value.Locations)
-        {
             Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
-        }
+
         WeakReferenceMessenger.Default.Send(new HistoryTrackSelectedChangedMessage(value));
     }
 
+    [RelayCommand]
+    private async void Delete()
+    {
+        if (SelectedTrack is null)
+            return;
+
+        var data = await dbService.DeleteTrackAsync(SelectedTrack);
+
+        SelectedTrack = null;
+        Track.Geopath.Clear();
+        Tracks.Clear();
+        Tracks = await dbService.GetAllTracksAsync();
+    }
+
+    [RelayCommand]
+    private void FullScreen()
+    {
+
+    }
 
     [ObservableProperty]
     private Polyline track = new Polyline
@@ -45,5 +70,5 @@ public partial class HistoryViewModel : ObservableObject
     private CustomTrack selectedTrack;
 
     [ObservableProperty]
-    private List<CustomTrack> tracks;
+    private IList<CustomTrack> tracks;
 }
