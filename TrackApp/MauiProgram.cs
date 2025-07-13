@@ -36,6 +36,9 @@ public static class MauiProgram
         builder.Services.AddSingleton<SettingsViewModel>();
         builder.Services.AddTransient<SettingsView>();
 
+        builder.Services.AddSingleton<TestViewModel>();
+        builder.Services.AddTransient<TestView>();
+
         var app = builder.Build();
         ServiceHelper.Initialize(app.Services);
 

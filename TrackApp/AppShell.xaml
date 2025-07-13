@@ -20,4 +20,9 @@
         ContentTemplate="{DataTemplate views:SettingsView}"
         Route="SettingsView" />
 
+    <ShellContent
+        Title="Test"
+        ContentTemplate="{DataTemplate views:TestView}"
+        Route="TestView" />
+
 </Shell>

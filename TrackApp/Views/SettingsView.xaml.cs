@@ -6,7 +6,7 @@ namespace TrackApp.Views;
 public partial class SettingsView : ContentPage
 {
 
-	private SettingsViewModel viewModel;
+	private readonly SettingsViewModel viewModel;
 
     public SettingsView()
 	{

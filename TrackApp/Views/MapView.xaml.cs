@@ -10,7 +10,7 @@ namespace TrackApp.Views;
 public partial class MapView : ContentPage
 {
 
-    private MapViewModel viewModel;
+    private readonly MapViewModel viewModel;
     private Location location;
     private double zoomLevel = 250;
     private bool isZooming = false;
