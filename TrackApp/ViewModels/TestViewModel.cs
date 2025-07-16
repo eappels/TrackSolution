@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Maui.Controls.Maps;
+using TrackApp.Models;
 using TrackApp.Services.Interfaces;
 
 namespace TrackApp.ViewModels;
@@ -8,10 +9,25 @@ public partial class TestViewModel : ObservableObject
 {
 
     private readonly IDBService dbService;
+    private CustomTrack latestTrack;
 
     public TestViewModel(IDBService dbService)
     {
         this.dbService = dbService;
+    }
+
+    public void LoadData()
+    {
+        Task.Run(async () =>
+        {
+            Tracks = await dbService.GetAllTracksAsync();
+            latestTrack = Tracks[int.MaxValue];
+            latestTrack.Locations = await dbService.GetLocationsByTrackIdAsync(latestTrack.Id);
+            foreach (var location in latestTrack.Locations)
+            {
+                Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
+            }
+        });
     }
 
     [ObservableProperty]
@@ -21,19 +37,6 @@ public partial class TestViewModel : ObservableObject
         StrokeWidth = 5
     };
 
-    public void LoadData()
-    {
-        Task.Run(async () =>
-        {
-            var customTracks = await dbService.GetAllTracksAsync();
-            foreach (var customTrack in customTracks)
-            {
-                customTrack.Locations = await dbService.GetLocationsByTrackIdAsync(customTrack.Id);
-                foreach (var location in customTrack.Locations)
-                {
-                    Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
-                }
-            }                       
-        });
-    }
+    [ObservableProperty]
+    private IList<CustomTrack> tracks;
 }
