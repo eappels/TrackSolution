@@ -53,12 +53,6 @@ public partial class HistoryViewModel : ObservableObject
         Tracks = await dbService.GetAllTracksAsync();
     }
 
-    [RelayCommand]
-    private void FullScreen()
-    {
-
-    }
-
     [ObservableProperty]
     private Polyline track = new Polyline
     {

@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls.Maps;
+using System.Diagnostics;
 using TrackApp.Models;
 using TrackApp.Services.Interfaces;
 
@@ -10,24 +12,60 @@ public partial class TestViewModel : ObservableObject
 
     private readonly IDBService dbService;
     private CustomTrack latestTrack;
+    private CustomTrack currentTrack;
 
     public TestViewModel(IDBService dbService)
     {
         this.dbService = dbService;
     }
 
-    public void LoadData()
+    public async void LoadData()
     {
-        Task.Run(async () =>
+        await LoadTrack();
+    }
+
+    [RelayCommand]
+    private async Task PreviousTrack()
+    {
+        await LoadTrack(latestTrack.Id - 1);
+    }
+
+    [RelayCommand]
+    private async Task NextTrack()
+    {
+        await LoadTrack(latestTrack.Id + 1);
+    }
+
+    private async Task LoadTrack()
+    {
+        try
         {
-            Tracks = await dbService.GetAllTracksAsync();
-            latestTrack = Tracks[int.MaxValue];
-            latestTrack.Locations = await dbService.GetLocationsByTrackIdAsync(latestTrack.Id);
+            latestTrack = await dbService.ReadLastTrackAsync();
+            Debug.WriteLine($"Loaded track with ID: {latestTrack.Id}");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error loading track with ID {latestTrack.Id}: {ex.Message}");
+            throw;
+        }        
+        Track.Geopath.Clear();
+        if (latestTrack == null)
+        {
+            Debug.WriteLine("No track found.");
+            return;
+        }
+        if (latestTrack.Locations.Count > 0)
+        {
             foreach (var location in latestTrack.Locations)
             {
                 Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
             }
-        });
+        }
+    }
+
+    private async Task LoadTrack(int id)
+    {
+        await Task.Delay(1000); // Simulate loading delay
     }
 
     [ObservableProperty]
@@ -36,7 +74,4 @@ public partial class TestViewModel : ObservableObject
         StrokeColor = Colors.Blue,
         StrokeWidth = 5
     };
-
-    [ObservableProperty]
-    private IList<CustomTrack> tracks;
 }

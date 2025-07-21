@@ -4,5 +4,19 @@
              xmlns:maps="http://schemas.microsoft.com/dotnet/2021/maui/maps"
              x:Class="TrackApp.Views.TestView"
              Title="TestView">
-    <maps:Map x:Name="MyMap"/>
+    <Grid
+        RowDefinitions="*,100">
+        <maps:Map x:Name="MyMap"
+            Grid.Row="0"
+            ZIndex="0"/>
+        <HorizontalStackLayout HorizontalOptions="Center"
+            Grid.Row="1">
+            <Button Text="Prev"
+                Command="{Binding PreviousTrackCommand}"
+                HorizontalOptions="Center"/>
+            <Button Text="Next"
+                Command="{Binding NextTrackCommand}"
+                HorizontalOptions="Center"/>
+        </HorizontalStackLayout>
+    </Grid>
 </ContentPage>
