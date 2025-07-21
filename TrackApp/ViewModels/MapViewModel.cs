@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Maui.Controls.Maps;
-using System.Diagnostics;
 using TrackApp.Messages;
 using TrackApp.Models;
 using TrackApp.Services.Interfaces;
@@ -22,7 +21,7 @@ public partial class MapViewModel : ObservableObject, IDisposable
             StrokeColor = Colors.Blue,
             StrokeWidth = 5
         };
-        this.locationService = locationService;
+        this.locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
         this.locationService.OnLocationUpdate += OnLocationUpdate;
         this.dbService = dbService ?? throw new ArgumentNullException(nameof(dbService));
     }
