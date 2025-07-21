@@ -42,15 +42,6 @@ public partial class MapViewModel : ObservableObject, IDisposable
         }
     }
 
-    [ObservableProperty]
-    public Polyline track;
-
-    [ObservableProperty]
-    public string startStopButtonText = "Start";
-
-    [ObservableProperty]
-    public Color startStopButtonColor = Colors.Green;
-
     [RelayCommand]
     private async void StartStop()
     {
@@ -87,4 +78,13 @@ public partial class MapViewModel : ObservableObject, IDisposable
             }
         }
     }
+
+    [ObservableProperty]
+    public Polyline track;
+
+    [ObservableProperty]
+    public string startStopButtonText = "Start";
+
+    [ObservableProperty]
+    public Color startStopButtonColor = Colors.Green;
 }
