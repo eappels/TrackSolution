@@ -10,17 +10,19 @@ namespace TrackApp.Views;
 public partial class MapView : ContentPage
 {
 
-    private readonly MapViewModel viewModel;
     private Location location;
     private double zoomLevel = 250;
     private bool isZooming = false;
     private IDispatcherTimer timer;
 
-    public MapView()
+    public MapView(MapViewModel viewModel)
 	{
 		InitializeComponent();
 
-        BindingContext = viewModel = ServiceHelper.GetService<MapViewModel>();
+        if (viewModel != null)
+            BindingContext = viewModel;
+        else
+            BindingContext = ServiceHelper.GetService<MapViewModel>();
 
         timer = Dispatcher.CreateTimer();
         timer.Interval = TimeSpan.FromSeconds(3);

@@ -12,16 +12,34 @@ public partial class HistoryViewModel : ObservableObject
 {
 
     private readonly IDBService dbService;
+    private int currentTrackIndex = -1;
 
-    public HistoryViewModel()
+    public HistoryViewModel(IDBService dbServcice)
     {
-        this.dbService = new Services.DBService();
+        this.dbService = dbServcice;
     }
 
     public async Task LoadDataFromDatabase()
     {
         Track.Geopath.Clear();
         Tracks = await dbService.GetAllTracksAsync();
+
+        if (Tracks.Count > 0)
+        {
+            SelectedTrack = Tracks.LastOrDefault();
+            if (SelectedTrack is not null)
+            {
+                currentTrackIndex = SelectedTrack.Id;
+                SelectedTrack.Locations = await dbService.GetLocationsByTrackIdAsync(currentTrackIndex);
+                foreach (var location in SelectedTrack.Locations)
+                    Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
+            }
+        }
+        else
+        {
+            SelectedTrack = null;
+            currentTrackIndex = -1;
+        }
     }
 
     async partial void OnSelectedTrackChanged(CustomTrack value)
@@ -29,8 +47,7 @@ public partial class HistoryViewModel : ObservableObject
         if (value is null)
             return;
 
-        if (Track.Geopath.Count > 0)
-            Track.Geopath.Clear();
+        Track.Geopath.Clear();
 
         value.Locations = await dbService.GetLocationsByTrackIdAsync(value.Id);
         foreach (var location in value.Locations)
@@ -51,6 +68,28 @@ public partial class HistoryViewModel : ObservableObject
         Track.Geopath.Clear();
         Tracks.Clear();
         Tracks = await dbService.GetAllTracksAsync();
+    }
+
+    [RelayCommand]
+    private void LoadNext()
+    {
+        if (Tracks.Count == 0)
+            return;
+        var firstTrack = Tracks.FirstOrDefault();
+        if (firstTrack is null)
+            return;
+        SelectedTrack = firstTrack;
+    }
+
+    [RelayCommand]
+    private void LoadPrevious()
+    {
+        if (Tracks.Count == 0)
+            return;
+        var lastTrack = Tracks.LastOrDefault();
+        if (lastTrack is null)
+            return;
+        SelectedTrack = lastTrack;
     }
 
     [ObservableProperty]

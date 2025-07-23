@@ -9,14 +9,16 @@ namespace TrackApp.Views;
 public partial class HistoryView : ContentPage
 {
 
-    private HistoryViewModel viewModel;
-
-    public HistoryView()
+    public HistoryView(HistoryViewModel viewModel)
 	{
 		InitializeComponent();
 
-        BindingContext = viewModel = ServiceHelper.GetService<HistoryViewModel>();		
-        MyMap.MapElements.Add(viewModel.Track);
+        if (viewModel != null)
+            BindingContext = viewModel;
+        else
+            BindingContext = ServiceHelper.GetService<HistoryViewModel>();
+
+		MyMap.MapElements.Add(((HistoryViewModel)BindingContext).Track);
 
         WeakReferenceMessenger.Default.Register<HistoryTrackSelectedChangedMessage>(this, (r, m) =>
 		{

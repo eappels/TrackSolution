@@ -10,7 +10,7 @@
         ColumnDefinitions="*,*">
         <maps:Map x:Name="MyMap"
             Grid.Row="0"
-            Grid.RowSpan="1"
+            Grid.RowSpan="3"
             Grid.Column="0"
             Grid.ColumnSpan="2"/>
         <Button Text="Delete"
@@ -22,18 +22,19 @@
             Grid.ColumnSpan="2"
             CornerRadius="0"
             Margin="1"/>
-        <ListView ItemsSource="{Binding Tracks}"
+        <Button Text="Prev"
+            Command="{Binding PreviousCommand}"
+            ZIndex="1"
             Grid.Row="2"
             Grid.RowSpan="1"
             Grid.Column="0"
-            Grid.ColumnSpan="2"
-            SelectionMode="Single"
-            SelectedItem="{Binding SelectedTrack}">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <TextCell Text="{Binding Id}"/>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+            Grid.ColumnSpan="1"/>
+        <Button Text="Next"
+            Command="{Binding NextCommand}"
+            ZIndex="1"
+            Grid.Row="2"
+            Grid.RowSpan="1"
+            Grid.Column="1"
+            Grid.ColumnSpan="1"/>
     </Grid>
 </ContentPage>
