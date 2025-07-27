@@ -57,6 +57,15 @@ public class DBService : IDBService
         return await database.Table<CustomTrack>().ToListAsync();
     }
 
+    public async Task<IList<CustomTrack>> GetTracksAsync(int limit, int offset)
+    {
+        await Init();
+        return await database.Table<CustomTrack>()
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync();
+    }
+
     public async Task<CustomTrack> GetTrackbyIdAsync(int id)
     {
         await Init();

@@ -5,6 +5,7 @@
     xmlns:views="clr-namespace:TrackApp.Views">
 
     <ShellContent
+        Title="Map"       
         ContentTemplate="{DataTemplate views:MapView}"
         Route="MapView" />
 

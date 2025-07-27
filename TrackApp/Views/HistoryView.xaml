@@ -12,7 +12,7 @@
             Grid.RowSpan="3"
             Grid.Column="1"
             Grid.ColumnSpan="2"/>
-        <Button Text="Delete"
+        <!--Button Text="Delete"
             Command="{Binding DeleteCommand}"
             ZIndex="1"
             Grid.Row="1"
@@ -20,6 +20,13 @@
             Grid.Column="1"
             Grid.ColumnSpan="2"
             CornerRadius="0"
+            Margin="1"/-->
+        <Label Text="{Binding CurrentIndex}"
+            ZIndex="1"
+            Grid.Row="1"
+            Grid.RowSpan="1"
+            Grid.Column="1"
+            Grid.ColumnSpan="2"
             Margin="1"/>
         <Button Text="Prev"
             Command="{Binding PreviousCommand}"

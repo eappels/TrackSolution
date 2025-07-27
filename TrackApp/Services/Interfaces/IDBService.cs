@@ -8,6 +8,7 @@ public interface IDBService
     Task<CustomTrack> ReadLastTrackAsync();
     Task<CustomTrack> GetTrackbyIdAsync(int id);
     Task<IList<CustomTrack>> GetAllTracksAsync();
+    Task<IList<CustomTrack>> GetTracksAsync(int limit, int offset);
     Task<IList<CustomLocation>> GetLocationsByTrackIdAsync(int trackId);
     Task<int> DeleteTrackAsync(CustomTrack track);
     Task ClearDatabase();

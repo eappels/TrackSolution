@@ -1,8 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Maui.Controls.Maps;
-using TrackApp.Messages;
 using TrackApp.Models;
 using TrackApp.Services.Interfaces;
 
@@ -12,7 +10,7 @@ public partial class HistoryViewModel : ObservableObject
 {
 
     private readonly IDBService dbService;
-    private int currentTrackIndex = -1;
+    private int limit = 1, offset = 0;
 
     public HistoryViewModel(IDBService dbServcice)
     {
@@ -22,15 +20,15 @@ public partial class HistoryViewModel : ObservableObject
     public async Task LoadDataFromDatabase()
     {
         Track.Geopath.Clear();
-        Tracks = await dbService.GetAllTracksAsync();
+        Tracks = await dbService.GetTracksAsync(limit, offset);
 
         if (Tracks.Count > 0)
         {
             SelectedTrack = Tracks.LastOrDefault();
             if (SelectedTrack is not null)
             {
-                currentTrackIndex = SelectedTrack.Id;
-                SelectedTrack.Locations = await dbService.GetLocationsByTrackIdAsync(currentTrackIndex);
+                CurrentIndex = SelectedTrack.Id;
+                SelectedTrack.Locations = await dbService.GetLocationsByTrackIdAsync(CurrentIndex);
                 foreach (var location in SelectedTrack.Locations)
                     Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
             }
@@ -38,22 +36,8 @@ public partial class HistoryViewModel : ObservableObject
         else
         {
             SelectedTrack = null;
-            currentTrackIndex = -1;
+            CurrentIndex = 0;
         }
-    }
-
-    async partial void OnSelectedTrackChanged(CustomTrack value)
-    {        
-        if (value is null)
-            return;
-
-        Track.Geopath.Clear();
-
-        value.Locations = await dbService.GetLocationsByTrackIdAsync(value.Id);
-        foreach (var location in value.Locations)
-            Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
-
-        WeakReferenceMessenger.Default.Send(new HistoryTrackSelectedChangedMessage(value));
     }
 
     [RelayCommand]
@@ -67,29 +51,53 @@ public partial class HistoryViewModel : ObservableObject
         SelectedTrack = null;
         Track.Geopath.Clear();
         Tracks.Clear();
-        Tracks = await dbService.GetAllTracksAsync();
+        await LoadDataFromDatabase();
     }
 
     [RelayCommand]
-    private void LoadNext()
+    private async Task Next()
     {
-        if (Tracks.Count == 0)
-            return;
-        var firstTrack = Tracks.FirstOrDefault();
-        if (firstTrack is null)
-            return;
-        SelectedTrack = firstTrack;
+        offset += limit;
+        var data = await dbService.GetTracksAsync(limit, offset);
+        if (data != null && data.Count > 0)
+        {
+            Track.Geopath.Clear();
+            foreach (var track in data)
+            {
+                if (track.Locations is null || track.Locations.Count == 0)
+                    track.Locations = await dbService.GetLocationsByTrackIdAsync(track.Id);
+                foreach (var location in track.Locations)
+                    Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
+                SelectedTrack = track;
+            }
+        }
+        else
+        {
+            offset -= limit;
+        }
     }
 
     [RelayCommand]
-    private void LoadPrevious()
+    private async Task Previous()
     {
-        if (Tracks.Count == 0)
-            return;
-        var lastTrack = Tracks.LastOrDefault();
-        if (lastTrack is null)
-            return;
-        SelectedTrack = lastTrack;
+        offset -= limit;
+        var data = await dbService.GetTracksAsync(limit, offset);
+        if (data != null && data.Count > 0)
+        {
+            Track.Geopath.Clear();
+            foreach (var track in data)
+            {
+                if (track.Locations is null || track.Locations.Count == 0)
+                    track.Locations = await dbService.GetLocationsByTrackIdAsync(track.Id);
+                foreach (var location in track.Locations)
+                    Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
+                SelectedTrack = track;
+            }
+        }
+        else
+        {
+            offset += limit;
+        }
     }
 
     [ObservableProperty]
@@ -104,4 +112,7 @@ public partial class HistoryViewModel : ObservableObject
 
     [ObservableProperty]
     private IList<CustomTrack> tracks;
+
+    [ObservableProperty]
+    private int currentIndex;
 }
