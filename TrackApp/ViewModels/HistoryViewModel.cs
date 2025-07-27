@@ -32,6 +32,7 @@ public partial class HistoryViewModel : ObservableObject
                 track.Locations = await dbService.GetLocationsByTrackIdAsync(track.Id);
             foreach (var location in track.Locations)
                 Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
+            SelectedTrack = track;
             WeakReferenceMessenger.Default.Send(new HistoryTrackSelectedChangedMessage(track));
         }
         else
@@ -46,9 +47,11 @@ public partial class HistoryViewModel : ObservableObject
     {
         offset += limit;
         var data = await dbService.GetTracksAsync(limit, offset);
+
         if (data != null && data.Count > 0)
         {
             Track.Geopath.Clear();
+
             foreach (var track in data)
             {
                 if (track.Locations is null || track.Locations.Count == 0)
@@ -74,6 +77,7 @@ public partial class HistoryViewModel : ObservableObject
         if (data != null && data.Count > 0)
         {
             Track.Geopath.Clear();
+
             foreach (var track in data)
             {
                 if (track.Locations is null || track.Locations.Count == 0)
