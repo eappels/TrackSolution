@@ -1,6 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Maui.Controls.Maps;
+using System.Diagnostics;
+using TrackApp.Messages;
 using TrackApp.Models;
 using TrackApp.Services.Interfaces;
 
@@ -22,36 +25,20 @@ public partial class HistoryViewModel : ObservableObject
         Track.Geopath.Clear();
         Tracks = await dbService.GetTracksAsync(limit, offset);
 
-        if (Tracks.Count > 0)
+        if (Tracks.Count == 1)
         {
-            SelectedTrack = Tracks.LastOrDefault();
-            if (SelectedTrack is not null)
-            {
-                CurrentIndex = SelectedTrack.Id;
-                SelectedTrack.Locations = await dbService.GetLocationsByTrackIdAsync(CurrentIndex);
-                foreach (var location in SelectedTrack.Locations)
-                    Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
-            }
+            var track = Tracks[0];
+            if (track.Locations is null || track.Locations.Count == 0)
+                track.Locations = await dbService.GetLocationsByTrackIdAsync(track.Id);
+            foreach (var location in track.Locations)
+                Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
+            WeakReferenceMessenger.Default.Send(new HistoryTrackSelectedChangedMessage(track));
         }
         else
         {
-            SelectedTrack = null;
-            CurrentIndex = 0;
+            Debug.WriteLine($"Tracks count: {Tracks.Count}");
+            throw new Exception("Tracks count is not 1, something went wrong.");
         }
-    }
-
-    [RelayCommand]
-    private async void Delete()
-    {
-        if (SelectedTrack is null)
-            return;
-
-        var data = await dbService.DeleteTrackAsync(SelectedTrack);
-
-        SelectedTrack = null;
-        Track.Geopath.Clear();
-        Tracks.Clear();
-        await LoadDataFromDatabase();
     }
 
     [RelayCommand]
@@ -69,6 +56,7 @@ public partial class HistoryViewModel : ObservableObject
                 foreach (var location in track.Locations)
                     Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
                 SelectedTrack = track;
+                WeakReferenceMessenger.Default.Send(new HistoryTrackSelectedChangedMessage(track));
             }
         }
         else
@@ -92,12 +80,27 @@ public partial class HistoryViewModel : ObservableObject
                 foreach (var location in track.Locations)
                     Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
                 SelectedTrack = track;
+                WeakReferenceMessenger.Default.Send(new HistoryTrackSelectedChangedMessage(track));
             }
         }
         else
         {
             offset += limit;
         }
+    }
+
+    [RelayCommand]
+    private async void Delete()
+    {
+        if (SelectedTrack is null)
+            return;
+
+        var data = await dbService.DeleteTrackAsync(SelectedTrack);
+
+        SelectedTrack = null;
+        Track.Geopath.Clear();
+        Tracks.Clear();
+        await LoadDataFromDatabase();
     }
 
     [ObservableProperty]
