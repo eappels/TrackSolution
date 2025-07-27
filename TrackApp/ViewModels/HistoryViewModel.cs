@@ -70,6 +70,7 @@ public partial class HistoryViewModel : ObservableObject
     {
         offset -= limit;
         var data = await dbService.GetTracksAsync(limit, offset);
+
         if (data != null && data.Count > 0)
         {
             Track.Geopath.Clear();
