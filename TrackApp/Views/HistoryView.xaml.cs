@@ -30,7 +30,7 @@ public partial class HistoryView : ContentPage
 				double minLon = locations.Min(l => l.Longitude);
 				double maxLon = locations.Max(l => l.Longitude);
 
-				const double paddingFactor = 1.2;
+				const double paddingFactor = 1.5;
 
 				double latSpan = Math.Max(0.01, maxLat - minLat) * paddingFactor;
 				double lonSpan = Math.Max(0.01, maxLon - minLon) * paddingFactor;

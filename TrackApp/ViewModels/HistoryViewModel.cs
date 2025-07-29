@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Maui.Controls.Maps;
-using System.Diagnostics;
 using TrackApp.Messages;
 using TrackApp.Models;
 using TrackApp.Services.Interfaces;
@@ -23,23 +22,16 @@ public partial class HistoryViewModel : ObservableObject
     public async Task LoadDataFromDatabase()
     {
         Track.Geopath.Clear();
-        Tracks = await dbService.GetTracksAsync(limit, offset);
+        var track = await dbService.GetLastTrackAsync();
 
-        if (Tracks.Count == 1)
-        {
-            var track = Tracks[0];
-            if (track.Locations is null || track.Locations.Count == 0)
-                track.Locations = await dbService.GetLocationsByTrackIdAsync(track.Id);
-            foreach (var location in track.Locations)
-                Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
-            SelectedTrack = track;
-            WeakReferenceMessenger.Default.Send(new HistoryTrackSelectedChangedMessage(track));
-        }
-        else
-        {
-            Debug.WriteLine($"Tracks count: {Tracks.Count}");
-            throw new Exception("Tracks count is not 1, something went wrong.");
-        }
+        if (track.Locations is null || track.Locations.Count == 0)
+            track.Locations = await dbService.GetLocationsByTrackIdAsync(track.Id);
+
+        foreach (var location in track.Locations)
+            Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
+
+        SelectedTrack = track;
+        WeakReferenceMessenger.Default.Send(new HistoryTrackSelectedChangedMessage(track));
     }
 
     [RelayCommand]

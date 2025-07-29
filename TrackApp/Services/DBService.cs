@@ -33,7 +33,7 @@ public class DBService : IDBService
         return i;
     }
 
-    public async Task<CustomTrack> ReadLastTrackAsync()
+    public async Task<CustomTrack> GetLastTrackAsync()
     {
         await Init();
         var track = await database.Table<CustomTrack>()
