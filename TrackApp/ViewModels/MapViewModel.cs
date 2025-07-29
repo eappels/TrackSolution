@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Maui.Controls.Maps;
+using Microsoft.Maui.Maps;
 using TrackApp.Messages;
 using TrackApp.Models;
 using TrackApp.Services.Interfaces;
@@ -13,9 +14,11 @@ public partial class MapViewModel : ObservableObject, IDisposable
 
     private readonly IDBService dbService;
     private readonly ILocationService locationService;
+    private Location previousLocation;
 
     public MapViewModel(ILocationService locationService, IDBService dbService)
     {
+        previousLocation = new Location(0, 0);
         Track = new Polyline
         {
             StrokeColor = Colors.Blue,
@@ -28,9 +31,18 @@ public partial class MapViewModel : ObservableObject, IDisposable
 
     private void OnLocationUpdate(Location location)
     {
-        if (Track != null)
-            Track.Geopath.Add(location);
-        WeakReferenceMessenger.Default.Send(new LocationUpdatedMessage(location));
+        if (previousLocation.Latitude != 0 && previousLocation.Longitude != 0)
+        {
+            Distance distance = Distance.BetweenPositions(previousLocation, location);
+            if (distance.Meters < 15)
+                return;
+
+            if (Track != null)
+                Track.Geopath.Add(location);
+            WeakReferenceMessenger.Default.Send(new LocationUpdatedMessage(location));
+            
+            previousLocation = location;
+        }
     }
 
     public void Dispose()
