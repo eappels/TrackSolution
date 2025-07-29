@@ -42,17 +42,7 @@ public partial class HistoryViewModel : ObservableObject
 
         if (data != null && data.Count > 0)
         {
-            Track.Geopath.Clear();
-
-            foreach (var track in data)
-            {
-                if (track.Locations is null || track.Locations.Count == 0)
-                    track.Locations = await dbService.GetLocationsByTrackIdAsync(track.Id);
-                foreach (var location in track.Locations)
-                    Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
-                SelectedTrack = track;
-                WeakReferenceMessenger.Default.Send(new HistoryTrackSelectedChangedMessage(track));
-            }
+            await ShowTrack(data);
         }
         else
         {
@@ -68,21 +58,26 @@ public partial class HistoryViewModel : ObservableObject
 
         if (data != null && data.Count > 0)
         {
-            Track.Geopath.Clear();
-
-            foreach (var track in data)
-            {
-                if (track.Locations is null || track.Locations.Count == 0)
-                    track.Locations = await dbService.GetLocationsByTrackIdAsync(track.Id);
-                foreach (var location in track.Locations)
-                    Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
-                SelectedTrack = track;
-                WeakReferenceMessenger.Default.Send(new HistoryTrackSelectedChangedMessage(track));
-            }
+            await ShowTrack(data);
         }
         else
         {
             offset += limit;
+        }
+    }
+
+    private async Task ShowTrack(IList<CustomTrack> data)
+    {
+        Track.Geopath.Clear();
+
+        foreach (var track in data)
+        {
+            if (track.Locations is null || track.Locations.Count == 0)
+                track.Locations = await dbService.GetLocationsByTrackIdAsync(track.Id);
+            foreach (var location in track.Locations)
+                Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
+            SelectedTrack = track;
+            WeakReferenceMessenger.Default.Send(new HistoryTrackSelectedChangedMessage(track));
         }
     }
 
