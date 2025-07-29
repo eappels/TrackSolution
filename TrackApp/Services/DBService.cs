@@ -33,16 +33,22 @@ public class DBService : IDBService
         return i;
     }
 
-    public async Task<CustomTrack> ReadLastTrackAsync()
+    public async Task<CustomTrack> GetLastTrackAsync()
     {
         await Init();
         var track = await database.Table<CustomTrack>()
             .OrderByDescending(t => t.Id)
             .FirstOrDefaultAsync();
+        await LoadLocations(track);
+        return track;
+    }
+
+    private async Task LoadLocations(CustomTrack track)
+    {
+        await Init();
         track.Locations = await database.Table<CustomLocation>()
             .Where(l => l.CustomTrackId == track.Id)
             .ToListAsync();
-        return track;
     }
 
     public async Task<IList<CustomTrack>> GetAllTracksAsync()
@@ -51,12 +57,23 @@ public class DBService : IDBService
         return await database.Table<CustomTrack>().ToListAsync();
     }
 
-    public async Task<CustomTrack> GetTrackbyIdAsync(int id)
+    public async Task<IList<CustomTrack>> GetTracksAsync(int limit, int offset)
     {
         await Init();
         return await database.Table<CustomTrack>()
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync();
+    }
+
+    public async Task<CustomTrack> GetTrackbyIdAsync(int id)
+    {
+        await Init();
+        var track = await database.Table<CustomTrack>()
             .Where(t => t.Id == id)
             .FirstOrDefaultAsync();
+        await LoadLocations(track);
+        return track;
     }
 
     public async Task<IList<CustomLocation>> GetLocationsByTrackIdAsync(int trackId)

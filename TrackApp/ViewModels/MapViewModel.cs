@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Maui.Controls.Maps;
-using System.Diagnostics;
 using TrackApp.Messages;
 using TrackApp.Models;
 using TrackApp.Services.Interfaces;
@@ -22,24 +21,9 @@ public partial class MapViewModel : ObservableObject, IDisposable
             StrokeColor = Colors.Blue,
             StrokeWidth = 5
         };
-        this.locationService = locationService;
+        this.locationService = locationService ?? throw new ArgumentNullException(nameof(locationService));
         this.locationService.OnLocationUpdate += OnLocationUpdate;
         this.dbService = dbService ?? throw new ArgumentNullException(nameof(dbService));
-
-
-        Task.Run(async () =>
-        {
-            var tracksInDB = await dbService.GetAllTracksAsync();
-            foreach (CustomTrack track in tracksInDB)
-            {
-                Debug.WriteLine($"Track ID: {track.Id}");
-                var cLocations = await dbService.GetLocationsByTrackIdAsync(track.Id);
-                foreach (CustomLocation cLocation in cLocations)
-                {
-                    Debug.WriteLine($"Location: {cLocation.Latitude}, {cLocation.Longitude}");
-                }
-            }
-        });
     }
 
     private void OnLocationUpdate(Location location)
@@ -57,15 +41,6 @@ public partial class MapViewModel : ObservableObject, IDisposable
             locationService.StopTracking();
         }
     }
-
-    [ObservableProperty]
-    public Polyline track;
-
-    [ObservableProperty]
-    public string startStopButtonText = "Start";
-
-    [ObservableProperty]
-    public Color startStopButtonColor = Colors.Green;
 
     [RelayCommand]
     private async void StartStop()
@@ -103,4 +78,13 @@ public partial class MapViewModel : ObservableObject, IDisposable
             }
         }
     }
+
+    [ObservableProperty]
+    public Polyline track;
+
+    [ObservableProperty]
+    public string startStopButtonText = "Start";
+
+    [ObservableProperty]
+    public Color startStopButtonColor = Colors.Green;
 }

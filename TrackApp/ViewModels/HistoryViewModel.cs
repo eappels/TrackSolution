@@ -12,31 +12,73 @@ public partial class HistoryViewModel : ObservableObject
 {
 
     private readonly IDBService dbService;
+    private int limit = 1, offset = 0;
 
-    public HistoryViewModel()
+    public HistoryViewModel(IDBService dbServcice)
     {
-        this.dbService = new Services.DBService();
+        this.dbService = dbServcice;
     }
 
     public async Task LoadDataFromDatabase()
     {
         Track.Geopath.Clear();
-        Tracks = await dbService.GetAllTracksAsync();
-    }
+        var track = await dbService.GetLastTrackAsync();
 
-    async partial void OnSelectedTrackChanged(CustomTrack value)
-    {        
-        if (value is null)
-            return;
+        if (track.Locations is null || track.Locations.Count == 0)
+            track.Locations = await dbService.GetLocationsByTrackIdAsync(track.Id);
 
-        if (Track.Geopath.Count > 0)
-            Track.Geopath.Clear();
-
-        value.Locations = await dbService.GetLocationsByTrackIdAsync(value.Id);
-        foreach (var location in value.Locations)
+        foreach (var location in track.Locations)
             Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
 
-        WeakReferenceMessenger.Default.Send(new HistoryTrackSelectedChangedMessage(value));
+        SelectedTrack = track;
+        WeakReferenceMessenger.Default.Send(new HistoryTrackSelectedChangedMessage(track));
+    }
+
+    [RelayCommand]
+    private async Task Next()
+    {
+        offset += limit;
+        var data = await dbService.GetTracksAsync(limit, offset);
+
+        if (data != null && data.Count > 0)
+        {
+            await ShowTrack(data);
+        }
+        else
+        {
+            offset -= limit;
+        }
+    }
+
+    [RelayCommand]
+    private async Task Previous()
+    {
+        offset -= limit;
+        var data = await dbService.GetTracksAsync(limit, offset);
+
+        if (data != null && data.Count > 0)
+        {
+            await ShowTrack(data);
+        }
+        else
+        {
+            offset += limit;
+        }
+    }
+
+    private async Task ShowTrack(IList<CustomTrack> data)
+    {
+        Track.Geopath.Clear();
+
+        foreach (var track in data)
+        {
+            if (track.Locations is null || track.Locations.Count == 0)
+                track.Locations = await dbService.GetLocationsByTrackIdAsync(track.Id);
+            foreach (var location in track.Locations)
+                Track.Geopath.Add(new Location(location.Latitude, location.Longitude));
+            SelectedTrack = track;
+            WeakReferenceMessenger.Default.Send(new HistoryTrackSelectedChangedMessage(track));
+        }
     }
 
     [RelayCommand]
@@ -50,13 +92,7 @@ public partial class HistoryViewModel : ObservableObject
         SelectedTrack = null;
         Track.Geopath.Clear();
         Tracks.Clear();
-        Tracks = await dbService.GetAllTracksAsync();
-    }
-
-    [RelayCommand]
-    private void FullScreen()
-    {
-
+        await LoadDataFromDatabase();
     }
 
     [ObservableProperty]
@@ -71,4 +107,7 @@ public partial class HistoryViewModel : ObservableObject
 
     [ObservableProperty]
     private IList<CustomTrack> tracks;
+
+    [ObservableProperty]
+    private int currentIndex;
 }
