@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Maui.Controls.Maps;
 using Microsoft.Maui.Maps;
+using System.Threading.Tasks;
 using TrackApp.Messages;
 using TrackApp.Models;
 using TrackApp.Services.Interfaces;
@@ -29,7 +30,7 @@ public partial class MapViewModel : ObservableObject, IDisposable
         this.dbService = dbService ?? throw new ArgumentNullException(nameof(dbService));
     }
 
-    private void OnLocationUpdate(Location location)
+    private async void OnLocationUpdate(Location location)
     {
         if (previousLocation.Latitude != 0 && previousLocation.Longitude != 0)
         {
@@ -39,6 +40,7 @@ public partial class MapViewModel : ObservableObject, IDisposable
 
             if (Track != null)
                 Track.Geopath.Add(location);
+            await dbService.SaveCustomLocationAsync(new CustomLocation(location.Latitude, location.Longitude, -1));
             WeakReferenceMessenger.Default.Send(new LocationUpdatedMessage(location));
             
             previousLocation = location;

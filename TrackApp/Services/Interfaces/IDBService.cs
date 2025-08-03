@@ -5,6 +5,7 @@ namespace TrackApp.Services.Interfaces;
 public interface IDBService
 {
     Task<int> SaveTrackAsync(CustomTrack track);
+    Task<int> SaveCustomLocationAsync(CustomLocation location);
     Task<CustomTrack> GetLastTrackAsync();
     Task<CustomTrack> GetTrackbyIdAsync(int id);
     Task<IList<CustomTrack>> GetAllTracksAsync();

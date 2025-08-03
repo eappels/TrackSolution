@@ -1,5 +1,6 @@
 ﻿using SQLite;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using TrackApp.Helpers;
 using TrackApp.Models;
 using TrackApp.Services.Interfaces;
@@ -25,12 +26,31 @@ public class DBService : IDBService
     {
         await Init();
         var i = await database.InsertAsync(track);
-        foreach (CustomLocation location in track.Locations)
+        var savedLocations = await database.Table<CustomLocation>()
+            .Where(l => l.CustomTrackId == -1)
+            .ToListAsync();
+        foreach (CustomLocation location in savedLocations)
         {
             location.CustomTrackId = track.Id;
             await database.InsertAsync(location);
         }
+
+        //await database.ExecuteAsync("DELETE FROM CustomLocation WHERE CustomTrackId = -1");
+        foreach (var oldLocation in savedLocations)
+        {
+            await database.DeleteAsync(oldLocation);
+        }
         return i;
+    }
+
+    public async Task<int> SaveCustomLocationAsync(CustomLocation location)
+    {
+        await Init();
+        if (location != null)
+        {
+            return await database.InsertAsync(location);
+        }
+        return 0;
     }
 
     public async Task<CustomTrack> GetLastTrackAsync()
